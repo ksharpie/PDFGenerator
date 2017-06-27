@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>&nbsp;</title>
+    <link rel="stylesheet"  href="chartist/chartist.css">
+    <script src="http://code.jquery.com/jquery.js"></script>
+  </head>
+  <body>
+    <div>
+      <center>
+        <table border="0" cellpadding="15">
+          <tr>
+            <td><img src="../img/logo.png"/></td>
+            <td>SynCon Technologies' location analytics (Sovereign Center)</strong>
+              <br>Telephone Number :  1-876-754-3579/80 Fax number: 1-876-754-2913
+            </td>
+          </tr>
+        </table>
+      </center>
+      <div class ="no-print">
+        <a href="monthly_index.html">Monthly</a> <a href="weekly_index.html">Weekly</a>
+        <a href="#" onclick="javascript:window.print(); return false;">Print</a>
+      </div>
+      <div class="line"></div>
+    </div>
+    <div>
+      <br>
+      <center><h1>Location Analytics (Sovereign Center)</h1></center>
+      <br>
+
+      <div>
+        <h2>Loyalty</h2>
+        <h5>Visitors</h5>
+        <div class="ct-chart ct-perfect-fourth" id="loyalty"></div>
+        <div class="ct-legend">
+          <div>
+            <div class="ct-legend-color-block-d">&nbsp;</div>
+            <h4>Occasionally</h4>
+          </div>
+          <div>
+            <div class="ct-legend-color-block-c">&nbsp;</div>
+            <h4>Weekly</h4>
+          </div>
+          <div>
+            <div class="ct-legend-color-block-b">&nbsp;</div>
+            <h4>Daily</h4>
+          </div>
+          <div>
+            <div class="ct-legend-color-block-a">&nbsp;</div>
+            <h4>First Time</h4>
+          </div>
+        </div>
+        <div style="width: 100%;">
+          <div class="ct-label-x-axis"><h5>Date/Time</h5></div>
+        </div>
+      </div>
+
+      <div class="pagebreak">
+        <br><br>
+      </div>
+
+      <div>
+        <h2>Engagement</h2>
+        <h5>Visits</h5>
+        <div class="ct-chart ct-perfect-fourth" id="engagement"></div>
+        <div class="ct-legend">
+          <div>
+            <div class="ct-legend-color-block-d">&nbsp;</div>
+            <h4>6+ hrs</h4>
+          </div>
+          <div>
+            <div class="ct-legend-color-block-c">&nbsp;</div>
+            <h4>1-6 hrs</h4>
+          </div>
+          <div>
+            <div class="ct-legend-color-block-b">&nbsp;</div>
+            <h4>20-60 mins</h4>
+          </div>
+          <div>
+            <div class="ct-legend-color-block-a">&nbsp;</div>
+            <h4>5-20 mins</h4>
+          </div>
+        </div>
+        <div style="width: 100%;">
+          <div class="ct-label-x-axis"><h5>Date/Time</h5></div>
+        </div>
+
+        <br><br>
+
+        <div class="definition">
+              <b>
+                A value in minutes showing the amount of time visitors spent within the range of the wireless network.
+              </b>
+        </div>
+      </div>
+
+      <div class="pagebreak">
+        <br><br>
+      </div>
+
+      <div>
+        <h2>Proximity</h2>
+        <h5>Visitors</h5>
+        <div class="ct-chart ct-perfect-fourth" id="proximity"></div>
+        <div class="ct-legend">
+          <div>
+            <div class="ct-legend-color-block-c">&nbsp;</div>
+            <h4>Passers By</h4>
+          </div>
+          <div>
+              <div class="ct-legend-color-block-b">&nbsp;</div>
+              <h4>Visitors</h4>
+          </div>
+          <div>
+              <div class="ct-legend-color-block-a">&nbsp;</div>
+              <h4>Connected</h4>
+          </div>
+        </div>
+        <div style="width: 100%;">
+          <div class="ct-label-x-axis"><h5>Date/Time</h5></div>
+        </div>
+      </div>
+
+      <div class="pagebreak">
+        <br><br>
+      </div>
+
+      <div>
+        <h2>Repeat Visitor Rate</h2>
+        <h5>%</h5>
+        <div class="ct-chart ct-perfect-fourth" id="repeatVisitorRate"></div>
+        <div class="ct-legend">
+          <div>
+            <div class="ct-legend-color-block-a">&nbsp;</div>
+            <h4>Repeat Visitor Rate</h4>
+          </div>
+        </div>
+        <div style="width: 100%;">
+          <div class="ct-label-x-axis"><h5>Date/Time</h5></div>
+        </div>
+      </div>
+
+      <div class="pagebreak">
+        <br><br>
+      </div>
+
+      <div>
+        <h2>Median Visit Length</h2>
+        <h5>Minutes</h5>
+        <div class="ct-chart ct-perfect-fourth" id="medianVisitLength"></div>
+        <div class="ct-legend">
+          <div>
+            <div class="ct-legend-color-block-a">&nbsp;</div>
+              <h4>Median Visit Length</h4>
+          </div>
+        </div>
+        <div style="width: 100%;">
+          <div class="ct-label-x-axis"><h5>Date/Time</h5></div>
+        </div>
+      </div>
+
+      <div class="pagebreak">
+        <br><br>
+      </div>
+
+      <div>
+        <h2>Capture Rate</h2>
+        <h5>%</h5>
+        <div class="ct-chart ct-perfect-fourth" id="captureRate"></div>
+        <div class="ct-legend">
+          <div>
+            <div class="ct-legend-color-block-a">&nbsp;</div>
+            <h4>Capture Rate</h4>
+          </div>
+        </div>
+        <div style="width: 100%;">
+          <div class="ct-label-x-axis"><h5>Date/Time</h5></div>
+        </div>
+        <br><br>
+
+        <div class="definition">
+              <b>
+                Percentage of passersby who become visitors. A passerby is any device that was seen, while a visitor is a device seen for more than a certain time with high signal strength. This graph shows all devices that were seen, and whether they were considered a passerby or a visitor. The ratio of visitors to total clients seen denotes the capture rate percentage.
+              </b>
+        </div>
+      </div>
+
+      <script src="chartist/chartist.min.js"></script>
+      <script src="chartist/chartist-plugin-axistitle.min.js"></script>
+      <script src="js/daily_generate.js"></script>
+    </div>
+  <body>
+</html>
+
+<style>
+  @media print {
+    .ct-legend-color-block-a {
+      background-color: #27518e !important;
+      -webkit-print-color-adjust: exact;
+    }
+
+    .ct-legend-color-block-b {
+      background-color: #1988d1 !important;
+      -webkit-print-color-adjust: exact;
+    }
+
+    .ct-legend-color-block-c {
+      background-color: #3fbdf0 !important;
+      -webkit-print-color-adjust: exact;
+    }
+
+    .ct-legend-color-block-d {
+      background-color: #a6c9f7 !important;
+      -webkit-print-color-adjust: exact;
+    }
+
+    body{
+      margin: : 3.81cm;
+    }
+
+    .no-print, .no-print *
+    {
+        display: none !important;
+    }
+
+
+  }
+
+  h5 {
+    margin-bottom: 0px;
+  }
+  .ct-chart {
+      float: left;
+      height: 400px;
+      width: 80%;
+  }
+  .ct-legend {
+      float: right;
+      width: 20%;
+      height: 400px;
+  }
+  .ct-label-x-axis{
+      width: 80%;
+      text-align:center;
+  }
+  .ct-grids line {
+    color: steelblue;
+  }
+  .ct-legend-color-block-a{
+    float: left;
+    width: 10%;
+    background-color: #27518e;
+    margin-right: 4px;
+    margin-left: 15px;
+  }
+  .ct-legend-color-block-b{
+    float: left;
+    width: 10%;
+    background-color: #1988d1;
+    margin-right: 4px;
+    margin-left: 15px;
+  }
+  .ct-legend-color-block-c{
+    float: left;
+    width: 10%;
+    background-color: #3fbdf0;
+    margin-right: 4px;
+    margin-left: 15px;
+  }
+  .ct-legend-color-block-d{
+    float: left;
+    width: 10%;
+    background-color: #a6c9f7;
+    margin-right: 4px;
+    margin-left: 15px;
+  }
+  .line{
+    width: 100%;
+    height: 10px;
+    border-bottom: 1px solid #008080;
+    position: absolute;
+  }
+
+  .pagebreak{
+    page-break-before: always;
+  }
+</style>
+
+<style type="text/css" media="print">
+  @page {
+    size: auto;   /* auto is the initial value */
+    /*margin: 0;*/
+    size: 14in 8.5in;
+}
+</style>
