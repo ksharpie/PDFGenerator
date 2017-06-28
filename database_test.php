@@ -44,9 +44,10 @@
     $rssi = $observation->rssi;
     $date_time_seen = 1970-01-01T00:00:00Z //TODO
     $seen_epoch = $observation->seenEpoch;
+    $ipv4 = $obervation->ipv4;
 
-    $sql = "INSERT INTO Observations (client_mac, rssi, seenEpoch, date_time_seen)
-            VALUES ('$client_mac', '$rssi', '$seen_epoch', ''$date_time_seen')";
+    $sql = "INSERT INTO Observations (client_mac, rssi, seenEpoch, date_time_seen, ipv4)
+            VALUES ('$client_mac', '$rssi', '$seen_epoch', ''$date_time_seen', '$ipv4')";
 
     $result = $conn->query($sql);
   }
@@ -71,6 +72,7 @@
           "medianVisitLength" => 0,
           "captureRate" => 0,
           "totalVisitors" => 0,
+          "totalRepeatVisitors" => 0,
           "totalTimeSpentByAllVisitors" => 0),
       "$date_today-1" => array(
           "engagement" => $engagement,
@@ -80,6 +82,7 @@
           "medianVisitLength" => 0,
           "captureRate" => 0,
           "totalVisitors" => 0,
+          "totalRepeatVisitors" => 0,
           "totalTimeSpentByAllVisitors" => 0),
       )
       "$date_today-2" => array(
@@ -90,6 +93,7 @@
           "medianVisitLength" => 0,
           "captureRate" => 0,
           "totalVisitors" => 0,
+          "totalRepeatVisitors" => 0,
           "totalTimeSpentByAllVisitors" => 0),
       "$date_today-3" => array(
           "engagement" => $engagement,
@@ -99,6 +103,7 @@
           "medianVisitLength" => 0,
           "captureRate" => 0,
           "totalVisitors" => 0,
+          "totalRepeatVisitors" => 0,
           "totalTimeSpentByAllVisitors" => 0),
       "$date_toda-4" => array(
           "engagement" => $engagement,
@@ -108,6 +113,7 @@
           "medianVisitLength" => 0,
           "captureRate" => 0,
           "totalVisitors" => 0,
+          "totalRepeatVisitors" => 0,
           "totalTimeSpentByAllVisitors" => 0),
      "$date_today-5" => array(
           "engagement" => $engagement,
@@ -117,6 +123,7 @@
           "medianVisitLength" => 0,
           "captureRate" => 0,
           "totalVisitors" => 0,
+          "totalRepeatVisitors" => 0,
           "totalTimeSpentByAllVisitors" => 0),
     "$date_today-6" => array(
           "engagement" => $engagement,
@@ -126,6 +133,7 @@
           "medianVisitLength" => 0,
           "captureRate" => 0,
           "totalVisitors" => 0,
+          "totalRepeatVisitors" => 0,
           "totalTimeSpentByAllVisitors" => 0),
   );
 
@@ -141,40 +149,105 @@
     while ($row = mysql_fetch_array($query)){
 
       //Tallies used to calculate median visit time
-      $dailyAnalysis["$row['date_time_seen']"]['totalTimeSpentByAllVisitors'] = $row['seenEpoch'];
+      $dailyAnalysis["$row['date_time_seen']"]['totalTimeSpentByAllVisitors'] += $row['seenEpoch'];
       $dailyAnalysis["$row['date_time_seen']"]['totalVisitors']++;
 
+      //visitor is automatically stored as a repeat visitor but later removed if they are first timers
+      $dailyAnalysis["$row['date_time_seen']"]['totalRepeatVisitors']++;
+
       /*******************************Engagement analysis*****************************************/
-      
+
       if ( $row['seenEpoch'] > 300 and $row['seenEpoch'] <= 1200 ){
         $dailyAnalysis["$row['date_time_seen']"]['engagement']['5-20mins']++;
       }
-      else if ( $row['seenEpoch'] > 1200 and $row['seenEpoch'] <= 3600 ){
+      elseif ( $row['seenEpoch'] > 1200 and $row['seenEpoch'] <= 3600 ){
         $dailyAnalysis["$row['date_time_seen']"]['engagement']['20-60mins']++;
       }
-      else if ( $row['seenEpoch'] > 3600 and $row['seenEpoch'] <= 21600){
+      elseif ( $row['seenEpoch'] > 3600 and $row['seenEpoch'] <= 21600){
         $dailyAnalysis["$row['date_time_seen']"]['engagement']['1-6hrs']++;
       }
-      else if ( $row['seenEpoch'] > 21600){
+      elseif ( $row['seenEpoch'] > 21600){
         $dailyAnalysis["$row['date_time_seen']"]['engagement']['6+hrs']++;
       }
 
-      //Loyalty Analysis
+      /*********************************Loyalty analysis*****************************************/
+
+      //Checks if visitor is a daily visitor
       $sql = "SELECT *
               FROM Observations
               WHERE client_mac = '$row['client_mac']'
               AND (date_field BETWEEN '$date_seven_days_ago' AND '$yesterday')";
 
-      $result = $conn->query($sql);
+      $result_temp = $conn->query($sql);
 
-      if ($result){
-        $dailyAnalysis["$row['date_time_seen']"]['engagement']['20-60mins']++
+      if ($result_temp){
+        $dailyAnalysis["$row['date_time_seen']"]['loyalty']['daily']++;
       }
       else{
+        //Checks if visitor is a weekly visitor
+        $sql = "SELECT *
+                FROM Observations
+                WHERE client_mac = '$row['client_mac']'
+                AND (date_field BETWEEN '$date_fourteen_days_ago' AND '$yesterday')";
 
+        $result_temp = $conn->query($sql);
+
+        if ($result_temp){
+          $dailyAnalysis["$row['date_time_seen']"]['loyalty']['weekly']++;
+        }
+        else{
+          //Checks if visitor is a monthly visitor
+          $sql = "SELECT *
+                  FROM Observations
+                  WHERE client_mac = '$row['client_mac']'
+                  AND (date_field BETWEEN '$date_thirty_days_ago' AND '$yesterday')";
+
+          $result_temp = $conn->query($sql);
+
+          if ($result_temp){
+            $dailyAnalysis["$row['date_time_seen']"]['loyalty']['monthly']++;
+          }
+          else{
+            //Checks if visitor is a first time visitor
+            $sql = "SELECT *
+                    FROM Observations
+                    WHERE client_mac = '$row['client_mac']'";
+
+            $result_temp = $conn->query($sql);
+
+            if (mysql_num_rows($result_temp) == 1){
+              $dailyAnalysis["$row['date_time_seen']"]['loyalty']['firstTime']++;
+              //removed repeat visitor as this is a first timer
+              $dailyAnalysis["$row['date_time_seen']"]['totalRepeatVisitors']++;
+            }
+            else{
+              //if the visitor is in any other category then
+              $dailyAnalysis["$row['date_time_seen']"]['loyalty']['occasionaly']++;
+            }
+          }
+        }
       }
 
+      /*********************************Proximity analysis*****************************************/
+
+      if ($row['ipv4']) {
+        $dailyAnalysis["$row['date_time_seen']"]['proximity']['connected']++;
+      }
+      elseif ($row['seenEpoch'] > 300 and $row['rssi'] > -70){
+        $dailyAnalysis["$row['date_time_seen']"]['proximity']['visitor']++;
+      }
+      else{
+        $dailyAnalysis["$row['date_time_seen']"]['proximity']['passersBy']++;
+      }
     }
+
+    /*******************************medianVisitLength analysis**************************************/
+
+    for ($count = 0; $count < 7; $count++){
+      $dailyAnalysis["$date_today-$count"]['medianVisitLength'] = $dailyAnalysis["$date_today-$count"]['totalTimeSpentByAllVisitors'] / $dailyAnalysis["$date_today-$count"]['totalVisitors'];
+    }
+
+    /*******************************repeatVisitorRate***********************************************/
   }
 
 ?>
