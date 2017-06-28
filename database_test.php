@@ -54,90 +54,31 @@
 
   /*************************Daily analysis of data*********************************/
   $date_today = ?;
-  $date_seven_days_ago = ?;
-
+  $yesterday = $date_today->subDays(1);
   $engagement = array("5-20mins"=> 0,"20-60mins"=> 0,"1-6hrs"=> 0,"6+hrs"=> 0);
   $loyalty  = array("firstTime" => 0 ,"daily" => 0 , "weekly" => 0 , "occasionaly" => 0);
   $proximity  = array("connected" => 0 ,"visitors" => 0 , "passersBy" => 0);
-  $totalTimeSpentByAllVisitors = 0;
-  $totalVisitors = 0;
 
-  //array to store all the results of the data analysis
-  $dailyAnalysis = array(
-      "$date_today" => array(
-          "engagement" => $engagement,
-          "loyalty" => $loyalty,
-          "proximity" => $proximity,
-          "repeatVisitorRate" => 0,
-          "medianVisitLength" => 0,
-          "captureRate" => 0,
-          "totalVisitors" => 0,
-          "totalRepeatVisitors" => 0,
-          "totalTimeSpentByAllVisitors" => 0),
-      "$date_today-1" => array(
-          "engagement" => $engagement,
-          "loyalty" => $loyalty,
-          "proximity" => $proximity,
-          "repeatVisitorRate" => 0,
-          "medianVisitLength" => 0,
-          "captureRate" => 0,
-          "totalVisitors" => 0,
-          "totalRepeatVisitors" => 0,
-          "totalTimeSpentByAllVisitors" => 0),
-      )
-      "$date_today-2" => array(
-          "engagement" => $engagement,
-          "loyalty" => $loyalty,
-          "proximity" => $proximity,
-          "repeatVisitorRate" => 0,
-          "medianVisitLength" => 0,
-          "captureRate" => 0,
-          "totalVisitors" => 0,
-          "totalRepeatVisitors" => 0,
-          "totalTimeSpentByAllVisitors" => 0),
-      "$date_today-3" => array(
-          "engagement" => $engagement,
-          "loyalty" => $loyalty,
-          "proximity" => $proximity,
-          "repeatVisitorRate" => 0,
-          "medianVisitLength" => 0,
-          "captureRate" => 0,
-          "totalVisitors" => 0,
-          "totalRepeatVisitors" => 0,
-          "totalTimeSpentByAllVisitors" => 0),
-      "$date_toda-4" => array(
-          "engagement" => $engagement,
-          "loyalty" => $loyalty,
-          "proximity" => $proximity,
-          "repeatVisitorRate" => 0,
-          "medianVisitLength" => 0,
-          "captureRate" => 0,
-          "totalVisitors" => 0,
-          "totalRepeatVisitors" => 0,
-          "totalTimeSpentByAllVisitors" => 0),
-     "$date_today-5" => array(
-          "engagement" => $engagement,
-          "loyalty" => $loyalty,
-          "proximity" => $proximity,
-          "repeatVisitorRate" => 0,
-          "medianVisitLength" => 0,
-          "captureRate" => 0,
-          "totalVisitors" => 0,
-          "totalRepeatVisitors" => 0,
-          "totalTimeSpentByAllVisitors" => 0),
-    "$date_today-6" => array(
-          "engagement" => $engagement,
-          "loyalty" => $loyalty,
-          "proximity" => $proximity,
-          "repeatVisitorRate" => 0,
-          "medianVisitLength" => 0,
-          "captureRate" => 0,
-          "totalVisitors" => 0,
-          "totalRepeatVisitors" => 0,
-          "totalTimeSpentByAllVisitors" => 0),
-  );
+  $dailyAnalysis = array();
+
+  $date_array = array(
+      "engagement" => $engagement,
+      "loyalty" => $loyalty,
+      "proximity" => $proximity,
+      "repeatVisitorRate" => 0,
+      "medianVisitLength" => 0,
+      "captureRate" => 0,
+      "totalVisitors" => 0,
+      "totalRepeatVisitors" => 0,
+      "totalTimeSpentByAllVisitors" => 0)
+
+  //Initializing of array used to store
+  for ($count = 0; $count < 7; $count++){
+    $dailyAnalysis[$date_today->subDays($count)] = $date_array;
+  }
 
   //Retrive data from database
+  $date_seven_days_ago = $date_today->subDays(7);
   $sql = "SELECT *
           FROM Observations
           WHERE (date_field BETWEEN '$date_seven_days_ago' AND '$date_today')";
@@ -146,83 +87,87 @@
 
   // if results exist, iterate through result
   if($result){
-    while ($row = mysql_fetch_array($query)){
+    while ($obervation = mysql_fetch_array($query)){
 
+      $obeservation_date = $obervation['date_time_seen'] // TODO
       //Tallies used to calculate median visit time
-      $dailyAnalysis["$row['date_time_seen']"]['totalTimeSpentByAllVisitors'] += $row['seenEpoch'];
-      $dailyAnalysis["$row['date_time_seen']"]['totalVisitors']++;
+      $dailyAnalysis[$obeservation_date]['totalTimeSpentByAllVisitors'] += $obervation['seenEpoch'];
+      $dailyAnalysis[$obeservation_date]['totalVisitors']++;
 
       //visitor is automatically stored as a repeat visitor but later removed if they are first timers
-      $dailyAnalysis["$row['date_time_seen']"]['totalRepeatVisitors']++;
+      $dailyAnalysis[$obeservation_date]['totalRepeatVisitors']++;
 
       /*******************************Engagement analysis*****************************************/
 
-      if ( $row['seenEpoch'] > 300 and $row['seenEpoch'] <= 1200 ){
-        $dailyAnalysis["$row['date_time_seen']"]['engagement']['5-20mins']++;
+      if ( $obervation['seenEpoch'] > 300 and $obervation['seenEpoch'] <= 1200 ){
+        $dailyAnalysis[$obeservation_date]['engagement']['5-20mins']++;
       }
-      elseif ( $row['seenEpoch'] > 1200 and $row['seenEpoch'] <= 3600 ){
-        $dailyAnalysis["$row['date_time_seen']"]['engagement']['20-60mins']++;
+      elseif ( $obervation['seenEpoch'] > 1200 and $obervation['seenEpoch'] <= 3600 ){
+        $dailyAnalysis[$obeservation_date]['engagement']['20-60mins']++;
       }
-      elseif ( $row['seenEpoch'] > 3600 and $row['seenEpoch'] <= 21600){
-        $dailyAnalysis["$row['date_time_seen']"]['engagement']['1-6hrs']++;
+      elseif ( $obervation['seenEpoch'] > 3600 and $obervation['seenEpoch'] <= 21600){
+        $dailyAnalysis[$obeservation_date]['engagement']['1-6hrs']++;
       }
-      elseif ( $row['seenEpoch'] > 21600){
-        $dailyAnalysis["$row['date_time_seen']"]['engagement']['6+hrs']++;
+      elseif ( $obervation['seenEpoch'] > 21600){
+        $dailyAnalysis[$obeservation_date]['engagement']['6+hrs']++;
       }
 
       /*********************************Loyalty analysis*****************************************/
 
       //Checks if visitor is a daily visitor
+      $date_seven_days_ago = $date_today->subDays(7);
       $sql = "SELECT *
               FROM Observations
-              WHERE client_mac = '$row['client_mac']'
+              WHERE client_mac = '$obervation['client_mac']'
               AND (date_field BETWEEN '$date_seven_days_ago' AND '$yesterday')";
 
       $result_temp = $conn->query($sql);
 
       if ($result_temp){
-        $dailyAnalysis["$row['date_time_seen']"]['loyalty']['daily']++;
+        $dailyAnalysis[$obeservation_date]['loyalty']['daily']++;
       }
       else{
         //Checks if visitor is a weekly visitor
+        $date_fourteen_days_ago = $date_today->subDays(14);
         $sql = "SELECT *
                 FROM Observations
-                WHERE client_mac = '$row['client_mac']'
+                WHERE client_mac = '$obervation['client_mac']'
                 AND (date_field BETWEEN '$date_fourteen_days_ago' AND '$yesterday')";
 
         $result_temp = $conn->query($sql);
 
         if ($result_temp){
-          $dailyAnalysis["$row['date_time_seen']"]['loyalty']['weekly']++;
+          $dailyAnalysis[$obeservation_date]['loyalty']['weekly']++;
         }
         else{
           //Checks if visitor is a monthly visitor
+          $date_thirty_days_ago = $date_today->subDays(30);
           $sql = "SELECT *
                   FROM Observations
-                  WHERE client_mac = '$row['client_mac']'
+                  WHERE client_mac = '$obervation['client_mac']'
                   AND (date_field BETWEEN '$date_thirty_days_ago' AND '$yesterday')";
 
           $result_temp = $conn->query($sql);
 
           if ($result_temp){
-            $dailyAnalysis["$row['date_time_seen']"]['loyalty']['monthly']++;
+            $dailyAnalysis[$obeservation_date]['loyalty']['monthly']++;
           }
           else{
             //Checks if visitor is a first time visitor
             $sql = "SELECT *
                     FROM Observations
-                    WHERE client_mac = '$row['client_mac']'";
+                    WHERE client_mac = '$obervation['client_mac']'";
 
             $result_temp = $conn->query($sql);
 
             if (mysql_num_rows($result_temp) == 1){
-              $dailyAnalysis["$row['date_time_seen']"]['loyalty']['firstTime']++;
+              $dailyAnalysis[$obeservation_date]['loyalty']['firstTime']++;
               //removed repeat visitor as this is a first timer
-              $dailyAnalysis["$row['date_time_seen']"]['totalRepeatVisitors']++;
+              $dailyAnalysis[$obeservation_date]['totalRepeatVisitors']--;
             }
             else{
               //if the visitor is in any other category then
-              $dailyAnalysis["$row['date_time_seen']"]['loyalty']['occasionaly']++;
+              $dailyAnalysis[$obeservation_date]['loyalty']['occasionaly']++;
             }
           }
         }
@@ -230,24 +175,73 @@
 
       /*********************************Proximity analysis*****************************************/
 
-      if ($row['ipv4']) {
-        $dailyAnalysis["$row['date_time_seen']"]['proximity']['connected']++;
+      if ($obervation['ipv4']) {
+        $dailyAnalysis[$obeservation_date]['proximity']['connected']++;
       }
-      elseif ($row['seenEpoch'] > 300 and $row['rssi'] > -70){
-        $dailyAnalysis["$row['date_time_seen']"]['proximity']['visitor']++;
+      elseif ($obervation['seenEpoch'] > 300 and $obervation['rssi'] > -70){
+        $dailyAnalysis[$obeservation_date]['proximity']['visitor']++;
       }
       else{
-        $dailyAnalysis["$row['date_time_seen']"]['proximity']['passersBy']++;
+        $dailyAnalysis[$obeservation_date]['proximity']['passersBy']++;
       }
     }
 
     /*******************************medianVisitLength analysis**************************************/
 
     for ($count = 0; $count < 7; $count++){
-      $dailyAnalysis["$date_today-$count"]['medianVisitLength'] = $dailyAnalysis["$date_today-$count"]['totalTimeSpentByAllVisitors'] / $dailyAnalysis["$date_today-$count"]['totalVisitors'];
+      $dailyAnalysis[$date_today->subDays($count)]['medianVisitLength'] = ($dailyAnalysis["$date_today-$count"]['totalTimeSpentByAllVisitors'] / $dailyAnalysis["$date_today-$count"]['totalVisitors']) * 100;
     }
 
-    /*******************************repeatVisitorRate***********************************************/
+    /******************************repeatVisitorRate analysis*****************************************/
+
+    for ($count = 0; $count < 7; $count++){
+      $dailyAnalysis[$date_today->subDays($count)]['repeatVisitorRate'] = ($dailyAnalysis["$date_today-$count"]['totalRepeatVisitors'] / $dailyAnalysis["$date_today-$count"]['totalVisitors']) * 100;
+    }
+
+    /******************************captureRate analysis*****************************************/
+
+    for ($count = 0; $count < 7; $count++){
+      $dailyAnalysis[$date_today->subDays($count)]['captureRate'] = ($dailyAnalysis[$obeservation_date]['proximity']['visitor'] / $dailyAnalysis["$date_today-$count"]['totalVisitors']) * 100;
+    }
+
+    /*******************************************Creating csv Files*****************************************/
+
+    //Capture Rate CSV
+    $myFile = "cv/daily/CaptureRate.csv";
+  	$fh = fopen($myFile, 'w');
+
+    fwrite($fh, "Network,time,Capture rate\n");
+
+    for ($count = 0; $count < 7; $count++){
+      fwrite($fh, "Sovereign Centre - wireless,$date_today->subDays($count),$dailyAnalysis[$date_today->subDays($count)]['captureRate']\n");
+    }
+
+    fclose($fh);
+
+    //Repeat Visitor Rate CSV
+    $myFile = "cv/daily/RepeatVisitorRate.csv";
+  	$fh = fopen($myFile, 'w');
+
+    fwrite($fh, "Network,time,Repeat visitor rate\n");
+
+    for ($count = 0; $count < 7; $count++){
+      fwrite($fh, "Sovereign Centre - wireless,$date_today->subDays($count),$dailyAnalysis[$date_today->subDays($count)]['repeatVisitorRate']\n");
+    }
+
+    fclose($fh);
+
+    //Median Visit Length CSV
+    $myFile = "cv/daily/MedianVisitLength.csv";
+  	$fh = fopen($myFile, 'w');
+
+    fwrite($fh, "Network,time,Median visit length\n");
+
+    for ($count = 0; $count < 7; $count++){
+      $visitLengthInMiniutes = $dailyAnalysis[$date_today->subDays($count)]['medianVisitLength'] / 60;
+      fwrite($fh, "Sovereign Centre - wireless,$date_today->subDays($count),$visitLengthInMiniutes\n");
+    }
+
+    fclose($fh);
   }
 
 ?>
